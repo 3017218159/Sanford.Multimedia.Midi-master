@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Sanford.Multimedia.Midi;
 using Sanford.Multimedia.Midi.UI;
@@ -26,12 +27,13 @@ namespace SequencerDemo
 
         private bool rdbcheck = false;
         private bool isReplay = false;
-        //public DelegateCollection.buttonClick myButtonClick;
+        private string currentFileName = "";
+        public delegate void MyDelegate(object sender, EventArgs e);
 
         public Form1()
         {
             InitializeComponent();
-            CheckForIllegalCrossThreadCalls = false;
+            //CheckForIllegalCrossThreadCalls = false;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -112,6 +114,7 @@ namespace SequencerDemo
         {
             try
             {
+                currentFileName = fileName;
                 sequencer1.Stop();
                 playing = false;
                 sequence1.LoadAsync(fileName);
@@ -262,11 +265,9 @@ namespace SequencerDemo
         private void HandlePlayingCompleted(object sender, EventArgs e)
         {
             timer1.Stop();
-            //MessageBox.Show(isReplay.ToString());
-            //myButtonClick = new DelegateCollection.buttonClick(startButton.PerformClick);
             if (isReplay)
             {
-                startButton.PerformClick();
+                Replay(this, e);
             }
         }
 
@@ -395,6 +396,20 @@ namespace SequencerDemo
                 radioButton1.Checked = true;
                 rdbcheck = true;
                 isReplay = true;
+            }
+        }
+
+        private void Replay(object sender, EventArgs e)
+        {
+            while (startButton.Enabled == false)
+            {
+                Application.DoEvents();
+                Thread.Sleep(100);
+            }
+            MyDelegate myDelegate = startButton_Click;
+            if (IsHandleCreated)
+            {
+                BeginInvoke(myDelegate, sender, e);
             }
         }
     }
