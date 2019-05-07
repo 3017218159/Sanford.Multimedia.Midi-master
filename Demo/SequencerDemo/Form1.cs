@@ -401,11 +401,6 @@ namespace SequencerDemo
 
         private void Replay(object sender, EventArgs e)
         {
-            while (startButton.Enabled == false)
-            {
-                Application.DoEvents();
-                Thread.Sleep(100);
-            }
             MyDelegate myDelegate = startButton_Click;
             if (IsHandleCreated)
             {
